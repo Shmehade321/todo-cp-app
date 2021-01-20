@@ -1,8 +1,9 @@
 // Todo Class: Represent individual todo item
 class Todo {
-  constructor(id, title) {
+  constructor(id, title, completed) {
     this.id = id;
     this.title = title;
+    this.completed = completed;
   }
 }
 
@@ -13,27 +14,35 @@ class UI {
     // Get todos from store
     const todos = Store.getTodos();
 
-    todos.forEach((todo) => UI.addTodoToList(todo));
+    todos
+      .slice()
+      .reverse()
+      .forEach((todo) => UI.addTodoToList(todo));
   }
 
-  static addTodoToList(todo) {
+  static addTodoToList(todo, activeFadeClass) {
     const list = document.querySelector(".todo-list");
     const row = document.createElement("ul");
     // Add CSS classes
     row.classList.add("list-group");
     row.innerHTML = `
             <li
-            class="d-flex justify-content-between align-items-center list-group-item"
+            class="d-flex justify-content-between align-items-center fade show ${
+              activeFadeClass ? "active" : false
+            } list-group-item todo-list-items"
             onmouseover="ShowButtons(this);"
             onmouseout="HideButtons(this);"
             >
-            <div class="d-flex justify-content-between align-items-center key-${
+            <div class="d-flex justify-content-between align-items-center w-100 key-${
               todo.id
             }">
-            <h5 class="mb-1">${todo.title}</h5>
-            <small class="ml-2">${moment(todo.id)
-              .startOf("second")
-              .fromNow()}</small>
+            <div class="form-check">
+              <input class="form-check-input completed-checkbox-${
+                todo.id
+              }" type="checkbox" value="${todo.completed ? todo.completed : 0}">
+              <label class="form-check-label" for="completed">
+                ${todo.title}
+              </label>
             </div>
             <span>
             <button
@@ -48,27 +57,39 @@ class UI {
                 <i class="fas fa-trash"></i>
             </button>
             </span>
+            </div>
+            </li>
         `;
     list.appendChild(row);
   }
 
-  static editTodo(id, title) {
+  static editTodo(id, title, completed) {
     document.querySelector("#todo").value = title;
     document.querySelector("#todo-id").value = id;
+    document.querySelector("#todo-completed").value = completed;
     document.querySelector(".save-icon").classList.remove("fa-save");
     document.querySelector(".save-icon").classList.add("fa-edit");
+    document.querySelector(".save-btn-text").innerHTML = "Edit Todo";
     document.querySelector("#todo").focus();
   }
 
-  static updateTodo(id, modifiedTitle, modifiedId) {
+  static updateTodo(id, title, completed) {
     const liEle = document.querySelector(`.key-${id}`).children;
-    const title = liEle[0].innerHTML;
-    const timestamp = liEle[1].innerHTML;
-    title.innerHTML = modifiedTitle;
-    timestamp.innerHTML = moment(modifiedId).startOf("second").fromNow();
+    liEle[0].children[0].value = completed; // Update checkbox value
+    liEle[0].children[1].innerHTML = title; // Update text of todo item
   }
 
-  static deleteTodo(id) {}
+  static deleteTodo(id) {
+    if (confirm("Do you want to delete todo?")) {
+      document.querySelector(`.key-${id}`).parentElement.remove();
+
+      //Remove from Store
+      Store.deleteTodo(id);
+
+      //Show alert
+      UI.showAlert("Successfully Deleted", "success");
+    }
+  }
 
   static showAlert(message, className) {
     const div = document.createElement("div");
@@ -78,7 +99,13 @@ class UI {
     const form = document.querySelector(".todo-form");
     container.insertBefore(div, form);
     // Disappear in 3 seconds
-    setTimeout(() => document.querySelector(".alert").remove(), 3000);
+    setTimeout(() => {
+      document.querySelector(".alert").remove();
+      if (
+        document.querySelector(".todo-list-items").classList.contains("active")
+      )
+        document.querySelector(".todo-list-items").classList.remove("active");
+    }, 3000);
   }
 
   static validate() {
@@ -135,19 +162,24 @@ class Store {
     const todos = Store.getTodos();
     todos.forEach((todo) => {
       if (todo.id === id) {
-        UI.editTodo(todo.id, todo.title);
+        UI.editTodo(todo.id, todo.title, todo.completed);
       }
     });
   }
 
-  static updateTodo(id, title, updatedId) {
+  static updateTodo(id, title, completed) {
     const todos = Store.getTodos();
     todos.forEach((todo, index) => {
       if (todo.id === id) {
-        todos.splice(index, 1);
+        const updatedTodo = {
+          id,
+          title,
+          completed,
+        };
+        todos.splice(index, 1, updatedTodo);
       }
     });
-    todos.push({ id: updatedId, title });
+    localStorage.removeItem("todos");
     localStorage.setItem("todos", JSON.stringify(todos));
   }
 
@@ -158,6 +190,7 @@ class Store {
         todos.splice(index, 1);
       }
     });
+    console.log(todos);
     localStorage.setItem("todos", JSON.stringify(todos));
   }
 }
@@ -183,20 +216,25 @@ document.querySelector(".todo-form").addEventListener("submit", (e) => {
 
   const id = Date.now();
   const title = document.querySelector("#todo").value;
+  const completed = 0;
 
   // Form Validation
   if (title === "") {
     UI.validate();
   } else {
-    const updateId = document.querySelector("#todo-id").value;
+    const updateId = parseInt(document.querySelector("#todo-id").value);
+
     if (updateId > 0) {
       //Update Todo
+      const updateCompleted = parseInt(
+        document.querySelector(`.completed-checkbox-${updateId}`).value
+      );
 
       //Update to store
-      Store.updateTodo(updateId, title, id);
+      Store.updateTodo(updateId, title, updateCompleted);
 
       //Update to UI
-      UI.updateTodo(updateId, title, id);
+      UI.updateTodo(updateId, title, updateCompleted);
 
       // Reset Form
       UI.resetForm();
@@ -205,10 +243,10 @@ document.querySelector(".todo-form").addEventListener("submit", (e) => {
     } else {
       // Insert Todo
       // Instatiate Todo
-      const todo = new Todo(id, title);
+      const todo = new Todo(id, title, completed);
 
       //Add todo to UI
-      UI.addTodoToList(todo);
+      UI.addTodoToList(todo, (activeFadeClass = true));
 
       // Add todo to Store
       Store.addTodo(todo);
@@ -224,6 +262,12 @@ document.querySelector(".todo-form").addEventListener("submit", (e) => {
 // Event: Edit a Todo
 EditTodo = (id, e) => {
   Store.editTodo(id);
+};
+
+//Event: Delete a Todo
+DeleteTodo = (id) => {
+  //Remove from UI
+  UI.deleteTodo(id);
 };
 
 // Show/Hide buttons on mouse hover
