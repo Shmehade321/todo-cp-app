@@ -14,7 +14,7 @@ li:hover {
 }
 
 .todo-list {
-  max-height: 400px;
+  max-height: 500px;
 }
 
 .todo-completed {
@@ -27,6 +27,10 @@ li:hover {
   animation-iteration-count: 1;
   animation-timing-function: ease-in;
   animation-duration: 1s;
+}
+
+.form-check {
+  font-size: 1rem;
 }
 
 @keyframes fadeInOpacity {

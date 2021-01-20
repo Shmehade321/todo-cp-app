@@ -311,6 +311,7 @@ TodoCompleted = (id, title) => {
 const ShowButtons = (e) => {
   let buttons = e.querySelectorAll("button");
   for (let i = 0; i < buttons.length; i++) {
+    console.log(buttons[0].parentElement.parentElement);
     buttons[i].classList.add("show");
   }
 };
