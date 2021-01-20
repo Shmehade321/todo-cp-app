@@ -14,10 +14,7 @@ class UI {
     // Get todos from store
     const todos = Store.getTodos();
 
-    todos
-      .slice()
-      .reverse()
-      .forEach((todo) => UI.addTodoToList(todo));
+    todos.forEach((todo) => UI.addTodoToList(todo));
   }
 
   static addTodoToList(todo, activeFadeClass) {
@@ -27,8 +24,8 @@ class UI {
     row.classList.add("list-group");
     row.innerHTML = `
             <li
-            class="d-flex justify-content-between align-items-center fade show ${
-              activeFadeClass ? "active" : false
+            class="d-flex justify-content-between align-items-center ${
+              activeFadeClass ? "todo-fade-in active" : false
             } list-group-item todo-list-items"
             onmouseover="ShowButtons(this);"
             onmouseout="HideButtons(this);"
@@ -39,8 +36,12 @@ class UI {
             <div class="form-check">
               <input class="form-check-input completed-checkbox-${
                 todo.id
-              }" type="checkbox" value="${todo.completed ? todo.completed : 0}">
-              <label class="form-check-label" for="completed">
+              }" type="checkbox" ${todo.completed === 1 && "disabled"} value="${
+      todo.completed ? todo.completed : 0
+    }" onchange="TodoCompleted('${todo.id}', '${todo.title}');">
+              <label class="form-check-label-${todo.id} ${
+      todo.completed === 1 && "todo-completed"
+    }" for="completed">
                 ${todo.title}
               </label>
             </div>
@@ -60,7 +61,7 @@ class UI {
             </div>
             </li>
         `;
-    list.appendChild(row);
+    list.prepend(row);
   }
 
   static editTodo(id, title, completed) {
@@ -91,6 +92,13 @@ class UI {
     }
   }
 
+  static completeTodo(id) {
+    document
+      .querySelector(`.form-check-label-${id}`)
+      .classList.add("todo-completed");
+    $(`.completed-checkbox-${id}`).attr("disabled", true);
+  }
+
   static showAlert(message, className) {
     const div = document.createElement("div");
     div.className = `alert alert-${className}`;
@@ -103,8 +111,12 @@ class UI {
       document.querySelector(".alert").remove();
       if (
         document.querySelector(".todo-list-items").classList.contains("active")
-      )
+      ) {
         document.querySelector(".todo-list-items").classList.remove("active");
+        document
+          .querySelector(".todo-list-items")
+          .classList.remove("todo-fade-in");
+      }
     }, 3000);
   }
 
@@ -190,7 +202,22 @@ class Store {
         todos.splice(index, 1);
       }
     });
-    console.log(todos);
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }
+
+  static completeTodo(id, title) {
+    const todos = Store.getTodos();
+    todos.forEach((todo, index) => {
+      if (todo.id === id) {
+        const completedTodo = {
+          id,
+          title,
+          completed: 1,
+        };
+        todos.splice(index, 1, completedTodo);
+      }
+    });
+    localStorage.removeItem("todos");
     localStorage.setItem("todos", JSON.stringify(todos));
   }
 }
@@ -268,6 +295,16 @@ EditTodo = (id, e) => {
 DeleteTodo = (id) => {
   //Remove from UI
   UI.deleteTodo(id);
+};
+
+//Event: Complete a Todo
+TodoCompleted = (id, title) => {
+  let parsedId = parseInt(id);
+  //Update Store
+  Store.completeTodo(parsedId, title);
+
+  //Update UI
+  UI.completeTodo(parsedId);
 };
 
 // Show/Hide buttons on mouse hover
