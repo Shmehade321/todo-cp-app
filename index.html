@@ -31,28 +31,46 @@
       </div>
       <div class="row mt-5">
         <div class="col-md-12">
-          <form class="todo-form" autocomplete="off" novalidate>
-            <input type="hidden" name="todo-id" id="todo-id" />
-            <input type="hidden" name="todo-completed" id="todo-completed" />
-            <div class="input-group">
-              <input
-                type="text"
-                class="form-control"
-                id="todo"
-                name="todo"
-                placeholder="ex. Run 5 miles, Cook a meal, Wash Clothes"
-                required
-                oninput="handleChange();"
-              />
-              <div class="input-group-append">
-                <button class="btn btn-outline-primary" type="submit">
-                  <i class="fas fa-save save-icon"></i>
-                  <span class="save-btn-text">Add Todo</span>
-                </button>
+          <div class="form-row align-items-center">
+            <form class="todo-form col-md-9" autocomplete="off" novalidate>
+              <input type="hidden" name="todo-id" id="todo-id" />
+              <input type="hidden" name="todo-completed" id="todo-completed" />
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="todo"
+                  name="todo"
+                  placeholder="ex. Run 5 miles, Cook a meal, Wash Clothes"
+                  required
+                  oninput="handleChange();"
+                />
+                <div class="input-group-append">
+                  <button class="btn btn-outline-primary" type="submit">
+                    <i class="fas fa-save save-icon"></i>
+                    <span class="save-btn-text">Add Todo</span>
+                  </button>
+                </div>
               </div>
+              <div class="invalid-feedback">Please Add a Todo</div>
+            </form>
+
+            <div class="col-md-3">
+              <label class="mr-sm-2 sr-only" for="filterTodos"
+                >Filter Todos</label
+              >
+              <select
+                class="custom-select mr-sm-2"
+                id="filterTodos"
+                onchange="FilterTodos();"
+              >
+                <option value="-1" selected>All</option>
+                <option value="1">Completed</option>
+                <option value="0">Not completed</option>
+              </select>
             </div>
-            <div class="invalid-feedback">Please Add a Todo</div>
-          </form>
+          </div>
+
           <hr />
           <div class="todo-list overflow-auto"></div>
         </div>

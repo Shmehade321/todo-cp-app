@@ -9,11 +9,15 @@ class Todo {
 
 // UI class: Handle UI Tasks
 class UI {
+  static resetTodoListContainer() {
+    document.querySelector(".todo-list").innerHTML = "";
+  }
+
   static displayTodoItems() {
     document.querySelector("#todo").focus();
     // Get todos from store
     const todos = Store.getTodos();
-
+    UI.resetTodoListContainer();
     todos.forEach((todo) => UI.addTodoToList(todo));
   }
 
@@ -110,6 +114,18 @@ class UI {
     $(`.completed-checkbox-${id}`).attr("disabled", true);
     $(`.completed-checkbox-${id}`).attr("checked", "checked");
     $(`.completed-checkbox-${id}`).attr("value", 1);
+  }
+
+  static filterTodos(filterBy) {
+    const todos = Store.getTodos();
+    let filteredList = [];
+    if (filterBy === -1) {
+      filteredList = todos;
+    } else {
+      filteredList = todos.filter((todo) => todo.completed === filterBy);
+    }
+    UI.resetTodoListContainer();
+    filteredList.forEach((todo) => UI.addTodoToList(todo));
   }
 
   static showAlert(message, className) {
@@ -318,6 +334,12 @@ TodoCompleted = (id, title) => {
 
   //Update UI
   UI.completeTodo(parsedId);
+};
+
+//Event: Filter Todos
+FilterTodos = () => {
+  const filteredValue = document.getElementById("filterTodos").value;
+  UI.filterTodos(parseInt(filteredValue));
 };
 
 // Show/Hide buttons on mouse hover
