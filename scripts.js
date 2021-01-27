@@ -41,9 +41,11 @@ class UI {
             <div class="form-check">
               <input class="form-check-input completed-checkbox-${
                 todo.id
-              }" type="checkbox" ${todo.completed === 1 && "disabled"} value="${
-      todo.completed ? todo.completed : 0
-    }" onchange="TodoCompleted('${todo.id}', '${todo.title}');">
+              }" type="checkbox" ${
+      todo.completed === 1 && "disabled checked"
+    } value="${todo.completed ? todo.completed : 0}" onchange="TodoCompleted('${
+      todo.id
+    }', '${todo.title}');">
               <label class="form-check-label-${todo.id} ${
       todo.completed === 1 && "todo-completed"
     }" for="completed">
@@ -106,6 +108,7 @@ class UI {
       .querySelector(".edit-button")
       .classList.remove("show");
     $(`.completed-checkbox-${id}`).attr("disabled", true);
+    $(`.completed-checkbox-${id}`).attr("checked", "checked");
     $(`.completed-checkbox-${id}`).attr("value", 1);
   }
 
