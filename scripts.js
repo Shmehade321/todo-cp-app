@@ -29,6 +29,8 @@ class UI {
             } list-group-item todo-list-items"
             onmouseover="ShowButtons(this);"
             onmouseout="HideButtons(this);"
+            data-aos="fade-left"
+            data-aos-duration="400"
             >
             <div class="d-flex justify-content-between align-items-center w-100 key-${
               todo.id
@@ -44,6 +46,9 @@ class UI {
     }" for="completed">
                 ${todo.title}
               </label>
+              <span class='datetime-span text-secondary'><small>Added ${moment(
+                todo.id
+              ).fromNow()}</small></span>
             </div>
             <span>
             <button
@@ -96,7 +101,12 @@ class UI {
     document
       .querySelector(`.form-check-label-${id}`)
       .classList.add("todo-completed");
+    document
+      .querySelector(`.key-${id}`)
+      .querySelector(".edit-button")
+      .classList.remove("show");
     $(`.completed-checkbox-${id}`).attr("disabled", true);
+    $(`.completed-checkbox-${id}`).attr("value", 1);
   }
 
   static showAlert(message, className) {
@@ -311,8 +321,20 @@ TodoCompleted = (id, title) => {
 const ShowButtons = (e) => {
   let buttons = e.querySelectorAll("button");
   for (let i = 0; i < buttons.length; i++) {
-    console.log(buttons[0].parentElement.parentElement);
-    buttons[i].classList.add("show");
+    const checkboxInput = buttons[0].parentElement.parentElement.querySelector(
+      "input[type='checkbox']"
+    ).value;
+
+    if (parseInt(checkboxInput) === 1) {
+      buttons[i].parentElement
+        .querySelector(".edit-button")
+        .classList.remove("show");
+      buttons[i].parentElement
+        .querySelector(".delete-button")
+        .classList.add("show");
+    } else {
+      buttons[i].classList.add("show");
+    }
   }
 };
 

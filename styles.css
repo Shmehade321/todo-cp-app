@@ -1,20 +1,14 @@
+body {
+  background-color: #f8f8f8;
+}
+
 li:hover {
   cursor: pointer;
   background-color: #f8f8f8;
 }
 
-.list-group-item {
-  border-top: 0;
-  border-left: 0;
-  border-right: 0;
-}
-
 .btn-circle {
   border-radius: 15px;
-}
-
-.todo-list {
-  max-height: 500px;
 }
 
 .todo-completed {
@@ -30,7 +24,31 @@ li:hover {
 }
 
 .form-check {
+  display: flex;
+  align-items: center;
   font-size: 1rem;
+}
+
+.form-check-input {
+  margin-top: 0;
+}
+
+label {
+  margin-bottom: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+li {
+  margin-bottom: 1rem;
+}
+
+.datetime-span {
+  padding-left: 1rem;
+}
+
+.jumbotron {
+  background-color: #ffffff;
 }
 
 @keyframes fadeInOpacity {
