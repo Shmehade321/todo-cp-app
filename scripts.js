@@ -22,6 +22,9 @@ class UI {
     const row = document.createElement("ul");
     // Add CSS classes
     row.classList.add("list-group");
+    //  <span class='datetime-span text-secondary'><small>Added ${moment(
+    //   todo.id
+    //   ).fromNow()}</small></span>
     row.innerHTML = `
             <li
             class="d-flex justify-content-between align-items-center ${
@@ -46,9 +49,6 @@ class UI {
     }" for="completed">
                 ${todo.title}
               </label>
-              <span class='datetime-span text-secondary'><small>Added ${moment(
-                todo.id
-              ).fromNow()}</small></span>
             </div>
             <span>
             <button
